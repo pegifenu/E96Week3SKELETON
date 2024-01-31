@@ -43,8 +43,11 @@ public class PlayerController : MonoBehaviour
     void OnJump()
     {
         //if player is on the ground, jump
-        //if (isGrounded)
-        Jump();
+        if (isGrounded)
+        {
+            Jump();
+        }
+
     }
 
     private void Jump()
@@ -52,6 +55,30 @@ public class PlayerController : MonoBehaviour
         // TODO: change y velocity of player
         rb.velocity = new Vector2(rb.velocity.x, jumpHeight);
     }
+
+    private void OnCollisionStay2D(Collision2D collision)
+    {
+
+        List<GameObject> currentCollisions = new List<GameObject>();
+        currentCollisions.Add(collision.gameObject);
+        Debug.Log(currentCollisions);
+        isGrounded = false;
+        for (int i = 0; i < collision.contactCount; i++)
+        {
+            if (Vector2.Angle(collision.GetContact(i).normal, Vector2.up) < 45f)
+            {
+                Debug.Log(Vector2.Angle(collision.GetContact(i).normal, Vector2.up));
+                isGrounded = true;
+                return;
+            }
+        }
+    }
+
+        private void OnCollisionExit2D(Collision2D collision)
+    {
+        isGrounded = false;
+    }
+
 
     void OnMove(InputValue moveVal)
     {
@@ -94,5 +121,13 @@ public class PlayerController : MonoBehaviour
         Vector3 newLocalScale = transform.localScale;
         newLocalScale.x *= -1f;
         transform.localScale = newLocalScale;
+    }
+
+    private void OnTriggerEnter2D(Collider2D other)
+    {
+        if (other.gameObject.CompareTag("Collectibles"))
+        {
+            Destroy(other.gameObject);
+        }
     }
 }
